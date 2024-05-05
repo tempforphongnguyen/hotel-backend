@@ -1,0 +1,22 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  SERVICE_URL: "https://win8024.site4now.net:8172/MsDeploy.axd?site=fogiso2661-001-site1"
+  SITE_NAME: "fogiso2661-001-site1"
+  USERNAME: "fogiso2661-001"
+  PASSWORD: "@bCd1122"
+  CSPROJ_PATH: '$CI_PROJECT_DIR/HotelApi/HotelApi/'
+build:
+  stage: build
+  script:
+    - cd $CSPROJ_PATH
+    - dotnet build HotelApi.csproj
+
+deploy:
+  stage: deploy
+  script:
+    - cd $CSPROJ_PATH
+    - dotnet publish -c Release -o publish_output
+    - msdeploy -verb:sync -source:package=publish_output -dest:auto,computerName="$SERVICE_URL",userName="$USERNAME",password="$PASSWORD",authType="Basic" -allowUntrusted=true -enableLink:AppPoolExtension -retryAttempts:2 -retryInterval:10000
